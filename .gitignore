@@ -23,6 +23,7 @@ htmlcov/
 # Logs and local databases
 *.log
 *.sqlite3
+*.db
 
 # Operating system files
 Thumbs.db

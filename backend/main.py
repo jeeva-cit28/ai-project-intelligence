@@ -1,5 +1,9 @@
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from backend.database import get_db
+from backend.models import Project
 
 app = FastAPI(
     title="AI Project Execution Intelligence Platform",
@@ -31,3 +35,21 @@ def get_project_info():
             "Delay detection"
         ]
     }
+@app.get("/api/v1/projects")
+def get_projects(db: Session = Depends(get_db)):
+    projects = db.query(Project).all()
+    return projects
+
+@app.get("/api/v1/projects/{project_id}")
+def get_project(project_id: int, db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == project_id).first()
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+
+    return project
+
+
