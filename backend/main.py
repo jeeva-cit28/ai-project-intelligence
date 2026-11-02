@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from backend.database import get_db
 from backend.models import Project
+from backend.schemas import ProjectCreate
+
 
 app = FastAPI(
     title="AI Project Execution Intelligence Platform",
@@ -51,5 +53,20 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
         )
 
     return project
+
+@app.post("/api/v1/projects")
+def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
+    new_project = Project(
+        name=project_data.name,
+        description=project_data.description,
+        status=project_data.status
+    )
+
+    db.add(new_project)
+    db.commit()
+    db.refresh(new_project)
+
+    return new_project
+
 
 
