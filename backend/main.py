@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from backend.database import get_db
 from backend.models import Project
-from backend.schemas import ProjectCreate
+from backend.schemas import ProjectCreate, ProjectUpdate
 
 
 app = FastAPI(
@@ -68,5 +68,27 @@ def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
 
     return new_project
 
+@app.put("/api/v1/projects/{project_id}")
+def update_project(
+    project_id: int,
+    project_data: ProjectUpdate,
+    db: Session = Depends(get_db)
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+
+    project.name = project_data.name
+    project.description = project_data.description
+    project.status = project_data.status
+
+    db.commit()
+    db.refresh(project)
+
+    return project
 
 
